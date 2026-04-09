@@ -8,12 +8,12 @@ function showDetails(title, img) {
 
   if(title.includes("BMW")){
     info = "BMW is known for luxury, performance and German engineering.";
-    price = "₹85 Lakh";
+    price = "₹85.00 Lakh";
   }
 
   else if(title.includes("MG")){
     info = "MG cars provide advanced technology and modern design.";
-    price = "₹22 Lakh";
+    price = "₹22.00 Lakh";
   }
 
   else if(title.includes("Jaguar")){
