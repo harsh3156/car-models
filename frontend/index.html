@@ -201,75 +201,86 @@ We provide a seamless experience for customers to explore high-performance cars 
 
 <script>
 
-function card(title,img){
+  const API = "http://localhost:5000/api/cars";
+  let allCars = [];   // store all fetched cars globally
 
-return `
-<div class="col-md-4 mb-4">
+  // ---------- Build one card ----------
+  function card(car) {
+    const price = car.price
+      ? "₹" + Number(car.price).toLocaleString("en-IN")
+      : "Price on request";
+    return `
+      <div class="col-md-4 mb-4">
+        <div class="card shadow h-100">
+          <img src="${car.image}" class="card-img-top"
+               style="height:200px;object-fit:cover"
+               onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">${car.name}</h5>
+            <p class="text-muted small mb-1">${car.brand} &bull; ${car.modelYear || ""}</p>
+            <p class="text-success fw-bold">${price}</p>
+            <button class="btn btn-dark mt-auto"
+              onclick='showDetails(${JSON.stringify(car)})'>
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
 
-<div class="card shadow">
+  // ---------- Render a list of cars ----------
+  function renderCards(cars) {
+    const container = document.getElementById("carCards");
+    if (!cars.length) {
+      container.innerHTML = `<div class="text-center w-100"><p class="text-muted">No cars found for this brand.</p></div>`;
+      return;
+    }
+    container.innerHTML = cars.map(card).join("");
+  }
 
-<img src="${img}" class="card-img-top" style="height:200px;object-fit:cover">
+  // ---------- Fetch all cars from backend ----------
+  async function loadCars() {
+    const container = document.getElementById("carCards");
+    container.innerHTML = `<div class="text-center w-100 py-4">
+      <div class="spinner-border text-dark" role="status"></div>
+      <p class="mt-2">Loading cars...</p>
+    </div>`;
 
-<div class="card-body text-center">
+    try {
+      const res  = await fetch(API);
+      const data = await res.json();
+      allCars = data;
+      renderCards(allCars);
+    } catch (err) {
+      container.innerHTML = `<div class="text-center w-100 text-danger py-4">
+        ⚠️ Could not connect to backend. Make sure the server is running on port 5000.
+      </div>`;
+      console.error("API error:", err);
+    }
+  }
 
-<h5>${title}</h5>
+  // ---------- Brand filter buttons ----------
+  function showBMW()    { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "bmw")); }
+  function showMG()     { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "mg")); }
+  function showJaguar() { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "jaguar")); }
 
-<button class="btn btn-dark"
-onclick="showDetails('${title}','${img}')">
-View Details
-</button>
+  // ---------- Modal with real data ----------
+  function showDetails(car) {
+    document.getElementById("modalTitle").innerText = car.name;
+    document.getElementById("modalImage").src       = car.image;
+    document.getElementById("modalInfo").innerHTML  =
+      `${car.description}<br><br>
+       <span class="badge bg-secondary me-1">⛽ ${car.fuelType || "N/A"}</span>
+       <span class="badge bg-secondary me-1">⚙️ ${car.transmission || "N/A"}</span>
+       <span class="badge bg-secondary">📅 ${car.modelYear || "N/A"}</span>`;
+    document.getElementById("modalPrice").innerText =
+      car.price ? "₹" + Number(car.price).toLocaleString("en-IN") : "Price on request";
 
-</div>
+    new bootstrap.Modal(document.getElementById("carModal")).show();
+  }
 
-</div>
-
-</div>
-`
-
-}
-
-function showBMW(){
-
-document.getElementById("carCards").innerHTML=
-
-card("BMW X5","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfwG48cr1hF5VO1JE52NZpJ-KYTdMRNbuooA&s")
-
-+card("BMW M4","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbZ9cHKC3lG1_xOoN_yN7jnddNhi_3Jdgesg&s")
-
-}
-
-function showMG(){
-
-document.getElementById("carCards").innerHTML=
-
-card("MG Hector","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxXaIY8Ob00LCajqWZkqxYGFYskCHqS2YgDg&s")
-
-+card("MG Astor","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ1olQ8bea8a48m3a_6UdxCGSSL6LcjXJwPQ&s")
-
-}
-
-function showJaguar(){
-
-document.getElementById("carCards").innerHTML=
-
-card("Jaguar F Pace","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCA8xN5rb_tDewBqFULNrtsAeGfBVE058CDA&s")
-
-+card("Jaguar XE","https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRP5U4la4Ua2SvaY4NekdYzUo8tGMDKf9D_dg&s")
-
-}
-
-function showDetails(title,img){
-
-document.getElementById("modalTitle").innerText=title
-document.getElementById("modalImage").src=img
-document.getElementById("modalInfo").innerText="Luxury performance car"
-document.getElementById("modalPrice").innerText="Price ₹50L+"
-
-let modal=new bootstrap.Modal(document.getElementById("carModal"))
-
-modal.show()
-
-}
+  // ---------- Load on page ready ----------
+  window.addEventListener("DOMContentLoaded", loadCars);
 
 </script>
 

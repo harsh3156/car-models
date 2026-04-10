@@ -2,10 +2,9 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-import connectDB from "./config/db.js";
+const connectDB = require("./config/db.js");
+const carRoutes = require("./routes/carRoutes.js");
 
-
-dotenv.config();
 connectDB();
 
 const app = express();
@@ -15,6 +14,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({ message: "Car World backend running" });
 });
+
+// Car API routes
+app.use("/api/cars", carRoutes);
 
 
 // MongoDB connection
