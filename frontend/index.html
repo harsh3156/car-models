@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Car World</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<!-- Header -->
+<div class="bg-dark text-light text-center py-2">
+<h5>Welcome to Car World 🚗 | Luxury Brands</h5>
+</div>
+
+<!-- Navbar -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-black">
+<div class="container">
+
+<a class="navbar-brand fw-bold">Car World</a>
+
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse" id="nav">
+
+<ul class="navbar-nav ms-auto">
+
+<li class="nav-item">
+<a class="nav-link">Home</a>
+</li>
+
+<li class="nav-item">
+<a class="nav-link" href="#about">About</a>
+</li>
+
+<li class="nav-item dropdown">
+
+<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+Brands
+</a>
+
+<ul class="dropdown-menu">
+
+<li><a class="dropdown-item" onclick="showBMW()">BMW</a></li>
+<li><a class="dropdown-item" onclick="showMG()">MG</a></li>
+<li><a class="dropdown-item" onclick="showJaguar()">Jaguar</a></li>
+
+</ul>
+
+</li>
+
+</ul>
+
+</div>
+</div>
+</nav>
+
+<!-- Carousel -->
+
+<div id="carouselExample" class="carousel slide">
+
+<div class="carousel-inner">
+
+<div class="carousel-item active">
+<img src="Images/Assets/front-car-lights-night-road (1).jpg"
+class="d-block w-100"
+style="height:500px;object-fit:cover;">
+</div>
+
+<div class="carousel-item">
+<img src="Images/Assets/mg.jpg"
+class="d-block w-100"
+style="height:500px;object-fit:cover;">
+</div>
+
+<div class="carousel-item">
+<img src="Images/Assets/f2.png"
+class="d-block w-100"
+style="height:500px;object-fit:cover;">
+</div>
+
+</div>
+
+<button class="carousel-control-prev" data-bs-target="#carouselExample" data-bs-slide="prev">
+<span class="carousel-control-prev-icon"></span>
+</button>
+
+<button class="carousel-control-next" data-bs-target="#carouselExample" data-bs-slide="next">
+<span class="carousel-control-next-icon"></span>
+</button>
+
+</div>
+
+<!-- Select Brands -->
+
+<div class="text-center my-5">
+
+<h2>TOP BRANDS</h2>
+
+<button class="btn btn-dark m-2" onclick="showBMW()">BMW</button>
+<button class="btn btn-success m-2" onclick="showMG()">MG</button>
+<button class="btn btn-primary m-2" onclick="showJaguar()">Jaguar</button>
+
+</div>
+
+<!-- Cards -->
+
+<div class="container">
+<div class="row" id="carCards">
+
+<div class="text-center">
+<h4>Select a brand to view cars 🚗</h4>
+</div>
+
+</div>
+</div>
+
+<!-- Modal -->
+
+<div class="modal fade" id="carModal">
+
+<div class="modal-dialog">
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h5 id="modalTitle"></h5>
+
+<button class="btn-close" data-bs-dismiss="modal"></button>
+
+</div>
+
+<div class="modal-body text-center">
+
+<img id="modalImage" class="img-fluid mb-3">
+
+<p id="modalInfo"></p>
+
+<h4 id="modalPrice" class="text-success"></h4>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- About Section -->
+
+<section id="about" class="about-section">
+
+<div class="container">
+
+<h2 class="about-title">About Car World</h2>
+
+<p class="about-text">
+Car World is a premium automobile showroom offering luxury vehicles from the world's top brands like BMW, MG and Jaguar. 
+We provide a seamless experience for customers to explore high-performance cars with modern design and advanced technology.
+</p>
+
+<div class="features">
+
+<div class="feature-card">
+<h3>🚗 Premium Cars</h3>
+<p>Explore luxury and performance vehicles from world-class brands.</p>
+</div>
+
+<div class="feature-card">
+<h3>⚡ Latest Technology</h3>
+<p>Our cars include modern safety features and advanced driving tech.</p>
+</div>
+
+<div class="feature-card">
+<h3>💎 Luxury Experience</h3>
+<p>Enjoy a premium showroom experience with expert guidance.</p>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- Footer -->
+
+<footer class="bg-dark text-light text-center py-3">
+
+© 2026 Car World
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+  const API = "http://localhost:5000/api/cars";
+  let allCars = [];   // store all fetched cars globally
+
+  // ---------- Build one card ----------
+  function card(car) {
+    const price = car.price
+      ? "₹" + Number(car.price).toLocaleString("en-IN")
+      : "Price on request";
+    return `
+      <div class="col-md-4 mb-4">
+        <div class="card shadow h-100">
+          <img src="${car.image}" class="card-img-top"
+               style="height:200px;object-fit:cover"
+               onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
+          <div class="card-body text-center d-flex flex-column">
+            <h5 class="card-title">${car.name}</h5>
+            <p class="text-muted small mb-1">${car.brand} &bull; ${car.modelYear || ""}</p>
+            <p class="text-success fw-bold">${price}</p>
+            <button class="btn btn-dark mt-auto"
+              onclick='showDetails(${JSON.stringify(car)})'>
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ---------- Render a list of cars ----------
+  function renderCards(cars) {
+    const container = document.getElementById("carCards");
+    if (!cars.length) {
+      container.innerHTML = `<div class="text-center w-100"><p class="text-muted">No cars found for this brand.</p></div>`;
+      return;
+    }
+    container.innerHTML = cars.map(card).join("");
+  }
+
+  // ---------- Fetch all cars from backend ----------
+  async function loadCars() {
+    const container = document.getElementById("carCards");
+    container.innerHTML = `<div class="text-center w-100 py-4">
+      <div class="spinner-border text-dark" role="status"></div>
+      <p class="mt-2">Loading cars...</p>
+    </div>`;
+
+    try {
+      const res  = await fetch(API);
+      const data = await res.json();
+      allCars = data;
+      renderCards(allCars);
+    } catch (err) {
+      container.innerHTML = `<div class="text-center w-100 text-danger py-4">
+        ⚠️ Could not connect to backend. Make sure the server is running on port 5000.
+      </div>`;
+      console.error("API error:", err);
+    }
+  }
+
+  // ---------- Brand filter buttons ----------
+  function showBMW()    { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "bmw")); }
+  function showMG()     { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "mg")); }
+  function showJaguar() { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "jaguar")); }
+
+  // ---------- Modal with real data ----------
+  function showDetails(car) {
+    document.getElementById("modalTitle").innerText = car.name;
+    document.getElementById("modalImage").src       = car.image;
+    document.getElementById("modalInfo").innerHTML  =
+      `${car.description}<br><br>
+       <span class="badge bg-secondary me-1">⛽ ${car.fuelType || "N/A"}</span>
+       <span class="badge bg-secondary me-1">⚙️ ${car.transmission || "N/A"}</span>
+       <span class="badge bg-secondary">📅 ${car.modelYear || "N/A"}</span>`;
+    document.getElementById("modalPrice").innerText =
+      car.price ? "₹" + Number(car.price).toLocaleString("en-IN") : "Price on request";
+
+    new bootstrap.Modal(document.getElementById("carModal")).show();
+  }
+
+  // ---------- Load on page ready ----------
+  window.addEventListener("DOMContentLoaded", loadCars);
+
+</script>
+
+</body>
+</html>
