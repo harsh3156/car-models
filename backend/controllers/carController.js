@@ -1,44 +1,38 @@
-const Car = require("../models/car.js");
+const Car = require("../models/car");
 
-// @desc    Get all cars
-// @route   GET /api/cars
+// ── @desc    Get all cars
+// ── @route   GET /api/cars
+// ── @access  Public
 const getCars = async (req, res) => {
   try {
     const cars = await Car.find().sort({ createdAt: -1 });
-    res.json(cars);
+    res.status(200).json({ success: true, count: cars.length, data: cars });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Get single car by ID
-// @route   GET /api/cars/:id
+// ── @desc    Get single car by ID
+// ── @route   GET /api/cars/:id
+// ── @access  Public
 const getCarById = async (req, res) => {
   try {
     const car = await Car.findById(req.params.id);
-
     if (!car) {
-      return res.status(404).json({ message: "Car not found" });
+      return res.status(404).json({ success: false, message: "Car not found" });
     }
-
-    res.json(car);
+    res.status(200).json({ success: true, data: car });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Create a new car
-// @route   POST /api/cars
+// ── @desc    Create a new car
+// ── @route   POST /api/cars
+// ── @access  Private / Admin
 const createCar = async (req, res) => {
   try {
-    const { name, brand, price, image, description, fuelType, modelYear, transmission } = req.body;
-
-    // Validate required fields
-    if (!name || !brand || !price || !image || !description) {
-      return res.status(400).json({
-        message: "Please provide all required fields: name, brand, price, image, description",
-      });
-    }
+    const { name, brand, price, image, description, fuelType, modelYear, transmission, mileage, stock } = req.body;
 
     const car = await Car.create({
       name,
@@ -49,77 +43,47 @@ const createCar = async (req, res) => {
       fuelType,
       modelYear,
       transmission,
+      mileage,
+      stock,
     });
 
-    res.status(201).json(car);
+    res.status(201).json({ success: true, data: car });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Update a car by ID
-// @route   PUT /api/cars/:id
+// ── @desc    Update a car
+// ── @route   PUT /api/cars/:id
+// ── @access  Private / Admin
 const updateCar = async (req, res) => {
   try {
-    const car = await Car.findById(req.params.id);
-
+    const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!car) {
-      return res.status(404).json({ message: "Car not found" });
+      return res.status(404).json({ success: false, message: "Car not found" });
     }
-
-    const updatedCar = await Car.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    res.json(updatedCar);
+    res.status(200).json({ success: true, data: car });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Delete a car by ID
-// @route   DELETE /api/cars/:id
+// ── @desc    Delete a car
+// ── @route   DELETE /api/cars/:id
+// ── @access  Private / Admin
 const deleteCar = async (req, res) => {
   try {
-    const car = await Car.findById(req.params.id);
-
+    const car = await Car.findByIdAndDelete(req.params.id);
     if (!car) {
-      return res.status(404).json({ message: "Car not found" });
+      return res.status(404).json({ success: false, message: "Car not found" });
     }
-
-    await Car.findByIdAndDelete(req.params.id);
-
-    res.json({ message: "Car deleted successfully" });
+    res.status(200).json({ success: true, message: "Car deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Search / filter cars by brand or name
-// @route   GET /api/cars/search?q=toyota
-const searchCars = async (req, res) => {
-  try {
-    const query = req.query.q || "";
-    const cars = await Car.find({
-      $or: [
-        { name:  { $regex: query, $options: "i" } },
-        { brand: { $regex: query, $options: "i" } },
-      ],
-    }).sort({ createdAt: -1 });
-
-    res.json(cars);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-module.exports = {
-  getCars,
-  getCarById,
-  createCar,
-  updateCar,
-  deleteCar,
-  searchCars,
-};
+module.exports = { getCars, getCarById, createCar, updateCar, deleteCar };

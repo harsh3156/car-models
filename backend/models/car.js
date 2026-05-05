@@ -4,31 +4,57 @@ const carSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "Car name is required"],
+      trim: true,
     },
     brand: {
       type: String,
-      required: true,
+      required: [true, "Brand is required"],
+      trim: true,
     },
     price: {
       type: Number,
-      required: true,
+      required: [true, "Price is required"],
+      min: [0, "Price cannot be negative"],
     },
     image: {
       type: String,
-      required: true,
+      default: "",
     },
     description: {
       type: String,
-      required: true,
+      trim: true,
+      default: "",
     },
-    fuelType: String,
-    modelYear: Number,
-    transmission: String,
+    fuelType: {
+      type: String,
+      enum: ["Petrol", "Diesel", "Electric", "Hybrid", "CNG"],
+      required: [true, "Fuel type is required"],
+    },
+    modelYear: {
+      type: Number,
+      required: [true, "Model year is required"],
+      min: [1886, "Invalid model year"],
+      max: [new Date().getFullYear() + 1, "Model year cannot be in the future"],
+    },
+    transmission: {
+      type: String,
+      enum: ["Manual", "Automatic"],
+      required: [true, "Transmission type is required"],
+    },
+    mileage: {
+      type: Number,
+      required: [true, "Mileage is required"],
+      min: [0, "Mileage cannot be negative"],
+    },
+    stock: {
+      type: Number,
+      required: [true, "Stock is required"],
+      min: [0, "Stock cannot be negative"],
+      default: 0,
+    },
   },
   { timestamps: true }
 );
 
-const Car = mongoose.model("Car", carSchema);
-
-module.exports = Car;
+module.exports = mongoose.model("Car", carSchema);
