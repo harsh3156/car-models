@@ -8,4 +8,4 @@ const adminOnly = (req, res, next) => {
   res.status(403).json({ success: false, message: "Access denied — admins only" });
 };
 
-module.exports = { adminOnly };
+module.exports = adminOnly;

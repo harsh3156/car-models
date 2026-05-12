@@ -12,6 +12,34 @@ const getCars = async (req, res) => {
   }
 };
 
+// ── @desc    Search cars
+// ── @route   GET /api/cars/search?q=...
+// ── @access  Public
+const searchCars = async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    const cars = await Car.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { brand: { $regex: query, $options: "i" } },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      count: cars.length,
+      data: cars,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 // ── @desc    Get single car by ID
 // ── @route   GET /api/cars/:id
 // ── @access  Public
@@ -86,4 +114,4 @@ const deleteCar = async (req, res) => {
   }
 };
 
-module.exports = { getCars, getCarById, createCar, updateCar, deleteCar };
+module.exports = { getCars, getCarById, createCar, updateCar, deleteCar, searchCars };

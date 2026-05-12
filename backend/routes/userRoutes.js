@@ -1,7 +1,8 @@
 const express = require("express");
+
 const {
     getUserProfile,
-    updateUserProfile,
+    updateProfile,
     getAllUsers,
     getUserById,
     deleteUser,
@@ -15,7 +16,7 @@ const router = express.Router();
 
 // User profile
 router.get("/profile", authMiddleware, getUserProfile);
-router.put("/profile", authMiddleware, updateUserProfile);
+router.put("/profile", authMiddleware, updateProfile);
 
 // Admin user management
 router.get("/", authMiddleware, adminMiddleware, getAllUsers);
