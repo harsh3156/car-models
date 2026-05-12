@@ -6,8 +6,13 @@ const connectDB = require("./config/db.js");
 const carRoutes = require("./routes/carRoutes.js");
 
 const errorMiddleware = require("./middleware/errorMiddleware");
-
 app.use(errorMiddleware);
+
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 connectDB();
 

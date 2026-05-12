@@ -1,17 +1,28 @@
 const express = require("express");
 const router = express.Router();
+import { getCars, getCarById, createCar } from "../controllers/carController.js";
 
-const { getCars, getCarById, createCar, updateCar, deleteCar } = require("../controllers/carController");
-const { protect } = require("../middleware/authMiddleware");
-const { adminOnly } = require("../middleware/adminMiddleware");
+const {
+  getCars,
+  getCarById,
+  createCar,
+  updateCar,
+  deleteCar,
+  searchCars,
+} = require("../controllers/carController.js");
 
-// ── Public routes ─────────────────────────────────────────────────────────────
-router.get("/", getCars);
-router.get("/:id", getCarById);
+// Search must come before /:id so it isn't caught as an id param
+router.get("/search", searchCars);   // GET  /api/cars/search?q=...
 
-// ── Admin-only routes ─────────────────────────────────────────────────────────
-router.post("/", protect, adminOnly, createCar);
-router.put("/:id", protect, adminOnly, updateCar);
-router.delete("/:id", protect, adminOnly, deleteCar);
+router.get("/", getCars);      // GET  /api/cars
+router.get("/:id", getCarById);   // GET  /api/cars/:id
+router.post("/", createCar);    // POST /api/cars
+router.put("/:id", updateCar);    // PUT  /api/cars/:id
+router.delete("/:id", deleteCar);    // DELETE /api/cars/:id
 
 module.exports = router;
+
+const {
+  addCarValidator,
+  updateCarValidator,
+} = require("../validators/carValidators");
