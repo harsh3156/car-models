@@ -94,3 +94,11 @@ const getMe = async (req, res) => {
 };
 
 module.exports = { register, login, getMe };
+
+
+const user = await User.create({
+  name,
+  email,
+  password,
+  role
+});
