@@ -33,8 +33,8 @@ export default function Login() {
       <div className={styles.card}>
         <div className={styles.cardTop}>
           <div className={styles.logo}>A</div>
-          <h1 className={styles.heading}>Welcome back</h1>
-          <p className={styles.sub}>Sign in to Antigravity Admin</p>
+          <h1 className={styles.heading}>LOGIN PAGE</h1>
+          <p className={styles.sub}>WELCOME TO HARSH ERA</p>
         </div>
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <div className={styles.error}>{error}</div>}
@@ -43,7 +43,7 @@ export default function Login() {
             <input
               type="email"
               className={styles.input}
-              placeholder="admin@antigravity.com"
+              placeholder="ENTER EMAIL ID "
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
@@ -64,8 +64,11 @@ export default function Login() {
             {loading ? <span className={styles.spinner} /> : 'Sign In →'}
           </button>
         </form>
-        <p className={styles.footer}>Antigravity Admin — Secure Access Only</p>
+        <p className={styles.footer}>Secure Access Only</p>
+        <p1 className={styles.footer}>DONT COOKED YOUR MIND AND STAY PRIVATE YOUR GROWTH</p1>
       </div>
+
+
     </div>
   );
 }
