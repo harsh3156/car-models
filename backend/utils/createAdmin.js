@@ -1,28 +1,36 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-const mongoose = require("mongoose");
-require("dotenv").config();
 
 const createAdmin = async () => {
-    await mongoose.connect(process.env.MONGO_URI);
+    try {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
 
-    const existing = await User.findOne({ role: "admin" });
-    if (existing) {
-        console.log("Admin already exists!");
-        process.exit();
+        if (!adminEmail || !adminPassword) {
+            console.log("ADMIN_EMAIL or ADMIN_PASSWORD missing in .env");
+            return;
+        }
+
+        const existingAdmin = await User.findOne({ email: adminEmail });
+
+        if (existingAdmin) {
+            console.log("Admin already exists");
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+        await User.create({
+            name: "Admin",
+            email: adminEmail,
+            password: hashedPassword,
+            role: "admin",
+        });
+
+        console.log("Admin created successfully");
+    } catch (error) {
+        console.log("Create admin error:", error.message);
     }
-
-    const hashedPassword = await bcrypt.hash("harsh.123", 12);  // ✅ string mein
-
-    await User.create({
-        name: "Admin",
-        email: "h1@gmail.com",
-        password: hashedPassword,   // ✅ hashed password use karo
-        role: "admin",
-    });
-
-    console.log("Admin created successfully!");
-    process.exit();
 };
 
-createAdmin();
+module.exports = createAdmin;

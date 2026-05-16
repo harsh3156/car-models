@@ -1,222 +1,225 @@
-// const jwt = require("jsonwebtoken");
-// const User = require("../models/User");
+// ─────────────────────────────────────────────────────────────────────────────
+// authController.js — Handles Login, Register, and Profile APIs
+// ─────────────────────────────────────────────────────────────────────────────
+// ENDPOINTS:
+//   POST /api/auth/login          → Unified login (auto-detects admin vs user)
+//   POST /api/auth/admin/login    → Admin-only login (extra security)
+//   POST /api/auth/register       → Register a new user account
+//   GET  /api/auth/me             → Get current logged-in user's profile
+// ─────────────────────────────────────────────────────────────────────────────
 
-// // ── Helper: sign a JWT ────────────────────────────────────────────────────────
-// const generateToken = (id, role) => {
-//   return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-//     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-//   });
-// };
+const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
 
-// // ── Helper: send token in response ───────────────────────────────────────────
-// const sendTokenResponse = (user, statusCode, res) => {
-//   const token = generateToken(user._id, user.role);
-
-//   res.status(statusCode).json({
-//     success: true,
-//     token,
-//     user: {
-//       _id: user._id,
-//       name: user.name,
-//       email: user.email,
-//       role: user.role,
-//     },
-//   });
-// };
-
-// // ── @desc    Register a new user
-// // ── @route   POST /api/auth/register
-// // ── @access  Public
-// const register = async (req, res) => {
-//   try {
-//     const { name, email, password, role } = req.body;
-
-//     // Check if user already exists
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({ success: false, message: "Email already in use" });
-//     }
-
-//     // Prevent self-assigning admin role (only DB seed / manual assignment)
-//     const safeRole = role === "admin" ? "user" : role || "user";
-
-//     const user = await User.create({ name, email, password, role: safeRole });
-
-//     sendTokenResponse(user, 201, res);
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
-// // ── @desc    Login user
-// // ── @route   POST /api/auth/login
-// // ── @access  Public
-// const login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     if (!email || !password) {
-//       return res.status(400).json({ success: false, message: "Please provide email and password" });
-//     }
-
-//     // Explicitly select password since it's select:false in schema
-//     const user = await User.findOne({ email }).select("+password");
-//     if (!user) {
-//       return res.status(401).json({ success: false, message: "Invalid email or password" });
-//     }
-
-//     const isMatch = await user.matchPassword(password);
-//     if (!isMatch) {
-//       return res.status(401).json({ success: false, message: "Invalid email or password" });
-//     }
-
-//     sendTokenResponse(user, 200, res);
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
-// // ── @desc    Get currently logged-in user
-// // ── @route   GET /api/auth/me
-// // ── @access  Private
-// const getMe = async (req, res) => {
-//   try {
-//     // req.user is set by authMiddleware
-//     const user = await User.findById(req.user.id);
-//     if (!user) {
-//       return res.status(404).json({ success: false, message: "User not found" });
-//     }
-
-//     res.status(200).json({ success: true, user });
-//   } catch (error) {
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
-// module.exports = { register, login, getMe };
-
-
-// const user = await User.create({
-//   name,
-//   email,
-//   password,
-//   role
-// });
-
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User"); // Your mongoose/sequelize User model
-
-// ─────────────────────────────────────────────
-// Helper: generate JWT token
-// ─────────────────────────────────────────────
-const generateToken = (payload) => {
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-  });
-};
-
-// ─────────────────────────────────────────────
-// USER LOGIN  →  /api/auth/login
-// ─────────────────────────────────────────────
-const userLogin = async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// UNIFIED LOGIN  →  POST /api/auth/login
+// ─────────────────────────────────────────────────────────────────────────────
+// HOW ADMIN LOGIN IS VERIFIED:
+//   1. Find user by email (any role — admin or user)
+//   2. Compare entered password with hashed password using bcrypt
+//   3. If match → generate JWT token with user's role embedded
+//   4. Return token + role so frontend knows where to redirect
+//   5. If admin → frontend redirects to /admin/dashboard
+//   6. If user  → frontend redirects to /  (main Car World site)
+// ─────────────────────────────────────────────────────────────────────────────
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required.",
+      });
     }
 
-    // Find user (only non-admin accounts)
-    const user = await User.findOne({ email, role: "user" });
+    // Find user by email — select("+password") because password has select:false in schema
+    const user = await User.findOne({ email }).select("+password");
+
+    // If no user found with this email
     if (!user) {
-      return res.status(401).json({ message: "Invalid email or password." }); // vague on purpose
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+        userExists: false, // Frontend uses this to suggest registration
+      });
     }
 
-    // Compare hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Compare entered password with stored hashed password
+    const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid email or password." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+        userExists: true,
+      });
     }
 
-    const token = generateToken({ id: user._id, email: user.email, role: "user" });
+    // Generate JWT token with user info embedded
+    const token = generateToken({
+      id: user._id,
+      email: user.email,
+      role: user.role,
+    });
 
+    // Send success response with token, role, and user data
     res.status(200).json({
-      message: "Login successful.",
+      success: true,
+      message: `${user.role === "admin" ? "Admin" : "User"} login successful.`,
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: "user" },
+      role: user.role, // "admin" or "user" — frontend uses this for redirection
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error("userLogin error:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("login error:", error);
+    res.status(500).json({ success: false, message: "Server error." });
   }
 };
 
-// ─────────────────────────────────────────────
-// ADMIN LOGIN  →  /api/auth/admin/login
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN-ONLY LOGIN  →  POST /api/auth/admin/login
+// ─────────────────────────────────────────────────────────────────────────────
+// Extra-secure endpoint that ONLY allows admin accounts to login.
+// Regular users cannot log in through this endpoint.
+// ─────────────────────────────────────────────────────────────────────────────
 const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required." });
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required.",
+      });
     }
 
-    // Find admin account only
-    const admin = await User.findOne({ email, role: "admin" });
+    // Only find accounts with role "admin"
+    const admin = await User.findOne({ email, role: "admin" }).select("+password");
     if (!admin) {
-      return res.status(401).json({ message: "Invalid credentials." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials.",
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = await admin.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid admin credentials.",
+      });
     }
 
-    const token = generateToken({ id: admin._id, email: admin.email, role: "admin" });
+    const token = generateToken({
+      id: admin._id,
+      email: admin.email,
+      role: "admin",
+    });
 
     res.status(200).json({
+      success: true,
       message: "Admin login successful.",
       token,
-      admin: { id: admin._id, name: admin.name, email: admin.email, role: "admin" },
+      role: "admin",
+      user: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: "admin",
+      },
     });
   } catch (error) {
     console.error("adminLogin error:", error);
-    res.status(500).json({ message: "Server error." });
+    res.status(500).json({ success: false, message: "Server error." });
   }
 };
 
-// ─────────────────────────────────────────────
-// REGISTER USER  →  /api/auth/register
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// REGISTER USER  →  POST /api/auth/register
+// ─────────────────────────────────────────────────────────────────────────────
+// Creates a new user account with role "user" (never "admin").
+// Password is hashed automatically by User model's pre-save hook.
+// ─────────────────────────────────────────────────────────────────────────────
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // Validate all required fields
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({
+        success: false,
+        message: "All fields (name, email, password) are required.",
+      });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters.",
+      });
+    }
+
+    // Check if email is already registered
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(409).json({ message: "Email already registered." });
+      return res.status(409).json({
+        success: false,
+        message: "Email already registered.",
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await User.create({ name, email, password: hashedPassword, role: "user" });
+    // Create user — password is hashed by User model's pre-save hook
+    // IMPORTANT: Do NOT manually hash here, the model handles it
+    const user = await User.create({ name, email, password, role: "user" });
 
-    const token = generateToken({ id: user._id, email: user.email, role: "user" });
+    // Auto-login after registration by generating a token
+    const token = generateToken({
+      id: user._id,
+      email: user.email,
+      role: "user",
+    });
 
     res.status(201).json({
+      success: true,
       message: "Registration successful.",
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: "user" },
+      role: "user",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: "user",
+      },
     });
   } catch (error) {
     console.error("registerUser error:", error);
-    res.status(500).json({ message: "Server error." });
+    res.status(500).json({ success: false, message: "Server error." });
   }
 };
 
-module.exports = { userLogin, adminLogin, registerUser };
+// ─────────────────────────────────────────────────────────────────────────────
+// GET CURRENT USER  →  GET /api/auth/me
+// ─────────────────────────────────────────────────────────────────────────────
+// Returns the profile of the currently logged-in user.
+// Requires a valid JWT token in the Authorization header.
+// ─────────────────────────────────────────────────────────────────────────────
+const getMe = async (req, res) => {
+  try {
+    // req.user is set by the verifyToken middleware
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { login, adminLogin, registerUser, getMe };

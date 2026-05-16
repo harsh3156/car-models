@@ -1,40 +1,33 @@
-// const express = require("express");
-
-// const {
-//     register,
-//     login,
-//     getMe,
-// } = require("../controllers/authController");
-
-// const authMiddleware = require("../middleware/authMiddleware");
-
-// const router = express.Router();
-
-// router.post("/register", register);
-// router.post("/login", login);
-
-// router.get("/me", authMiddleware, getMe);
-
-// module.exports = router;
+// ─────────────────────────────────────────────────────────────────────────────
+// authRoutes.js — Authentication API routes
+// ─────────────────────────────────────────────────────────────────────────────
+// ROUTE MAP:
+//   POST /api/auth/login          → Unified login (admin + user)
+//   POST /api/auth/admin/login    → Admin-only login
+//   POST /api/auth/register       → Register new user
+//   GET  /api/auth/me             → Get logged-in user profile (protected)
+// ─────────────────────────────────────────────────────────────────────────────
 
 const express = require("express");
 const router = express.Router();
-const { userLogin, adminLogin, registerUser } = require("../controllers/authController");
+
+// Import controller functions
+const { login, adminLogin, registerUser, getMe } = require("../controllers/authController");
+
+// Import middleware
 const { verifyToken, verifyAdmin } = require("../middleware/authMiddleware");
 
-// Public routes
-router.post("/register", registerUser);       // User registration
-router.post("/login", userLogin);             // User login
-router.post("/admin/login", adminLogin);      // Admin login (separate endpoint)
+// ── Public Routes (no token needed) ──────────────────────────────────────────
+router.post("/register", registerUser);       // Anyone can register
+router.post("/login", login);                 // Unified login (detects role)
+router.post("/admin/login", adminLogin);      // Admin-only login endpoint
 
-// Protected: any logged-in user
-router.get("/me", verifyToken, (req, res) => {
-    res.json({ user: req.user });
-});
+// ── Protected Routes (token required) ────────────────────────────────────────
+router.get("/me", verifyToken, getMe);        // Any logged-in user
 
-// Protected: admin only
+// ── Admin-Only Routes ────────────────────────────────────────────────────────
 router.get("/admin/dashboard", verifyAdmin, (req, res) => {
-    res.json({ message: "Welcome to admin dashboard.", admin: req.user });
+  res.json({ success: true, message: "Welcome to admin dashboard.", admin: req.user });
 });
 
 module.exports = router;

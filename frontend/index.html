@@ -4,288 +4,1191 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Car World — Luxury Automobiles</title>
 
-  <title>Car World</title>
-
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Google Fonts: Playfair Display (luxury display) + DM Sans (clean body) -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 
+  <style>
+    /* ═══════════════════════════════════════
+       CSS VARIABLES — single source of truth
+    ═══════════════════════════════════════ */
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c96e;
+      --gold-dim: rgba(201, 168, 76, 0.15);
+      --black: #0a0a0a;
+      --dark: #111111;
+      --dark-2: #1a1a1a;
+      --dark-3: #222222;
+      --glass: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text: #f0ece4;
+      --text-muted: #888880;
+      --radius: 12px;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ═══════════════════════════════════════
+       GLOBAL RESET & BASE
+    ═══════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grain overlay across entire page */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* ═══════════════════════════════════════
+       TOP ANNOUNCEMENT BAR
+    ═══════════════════════════════════════ */
+    .announcement-bar {
+      background: linear-gradient(90deg, var(--dark) 0%, var(--dark-2) 50%, var(--dark) 100%);
+      border-bottom: 1px solid var(--glass-border);
+      text-align: center;
+      padding: 8px 16px;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .announcement-bar span {
+      color: var(--text-muted);
+      margin: 0 12px;
+    }
+
+    /* ═══════════════════════════════════════
+       STICKY NAVBAR
+    ═══════════════════════════════════════ */
+    .navbar-custom {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 0;
+      transition: background var(--transition), box-shadow var(--transition);
+    }
+
+    /* Scrolled state — added via JS */
+    .navbar-custom.scrolled {
+      background: rgba(10, 10, 10, 0.97);
+      box-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .navbar-custom .container {
+      padding-top: 14px;
+      padding-bottom: 14px;
+    }
+
+    /* Brand / Logo */
+    .navbar-brand-custom {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--text) !important;
+      letter-spacing: 1px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .navbar-brand-custom .brand-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+
+    /* Nav links */
+    .navbar-nav .nav-link {
+      color: var(--text-muted) !important;
+      font-size: 0.82rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      padding: 6px 16px !important;
+      position: relative;
+      transition: color var(--transition);
+    }
+
+    .navbar-nav .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 16px;
+      right: 16px;
+      height: 1px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link.active {
+      color: var(--text) !important;
+    }
+
+    .navbar-nav .nav-link:hover::after,
+    .navbar-nav .nav-link.active::after {
+      transform: scaleX(1);
+    }
+
+    /* Dropdown */
+    .dropdown-menu {
+      background: var(--dark-2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 8px;
+      margin-top: 12px !important;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      animation: dropSlide 0.25s ease forwards;
+    }
+
+    @keyframes dropSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown-item {
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 0.83rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .dropdown-item:hover {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    /* Hamburger */
+    .navbar-toggler {
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .navbar-toggler:focus {
+      box-shadow: none;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(240,236,228,0.7)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+    }
+
+    /* ADMIN BUTTON */
+    .btn-admin {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold) !important;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 7px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 12px;
+    }
+
+    .btn-admin:hover {
+      background: var(--gold);
+      color: var(--black) !important;
+      box-shadow: 0 0 20px rgba(201, 168, 76, 0.35);
+    }
+
+    .btn-admin svg {
+      transition: transform var(--transition);
+    }
+
+    .btn-admin:hover svg {
+      transform: translateX(2px);
+    }
+
+    /* ═══════════════════════════════════════
+       HERO / CAROUSEL
+    ═══════════════════════════════════════ */
+    .hero-wrapper {
+      position: relative;
+    }
+
+    /* Dark gradient overlay on carousel for readability */
+    .hero-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom,
+          rgba(10, 10, 10, 0.3) 0%,
+          rgba(10, 10, 10, 0) 40%,
+          rgba(10, 10, 10, 0.85) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    #carouselExample .carousel-item img {
+      height: 600px;
+      object-fit: cover;
+      filter: brightness(0.75) saturate(0.85);
+    }
+
+    /* Hero text overlay */
+    .hero-overlay {
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .hero-overlay .hero-tag {
+      font-size: 0.72rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .hero-overlay h1 {
+      font-size: clamp(2.4rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero-overlay h1 em {
+      color: var(--gold);
+      font-style: italic;
+    }
+
+    .hero-overlay p {
+      font-size: 1rem;
+      color: rgba(240, 236, 228, 0.65);
+      max-width: 480px;
+      margin: 0 auto 28px;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gold);
+      color: var(--black);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 14px 32px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+
+    .hero-cta:hover {
+      background: var(--gold-light);
+      box-shadow: 0 8px 30px rgba(201, 168, 76, 0.4);
+      transform: translateY(-2px);
+      color: var(--black);
+    }
+
+    /* Carousel controls — circular ghost buttons */
+    .carousel-control-prev,
+    .carousel-control-next {
+      z-index: 4;
+      width: 50px;
+      height: 50px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.7;
+      transition: opacity var(--transition), background var(--transition);
+    }
+
+    .carousel-control-prev {
+      left: 24px;
+      bottom: auto;
+    }
+
+    .carousel-control-next {
+      right: 24px;
+      bottom: auto;
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+      opacity: 1;
+      background: var(--gold-dim);
+    }
+
+    /* ═══════════════════════════════════════
+       BRAND FILTER SECTION
+    ═══════════════════════════════════════ */
+    .brands-section {
+      padding: 72px 0 40px;
+      text-align: center;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .section-rule {
+      width: 48px;
+      height: 2px;
+      background: var(--gold);
+      margin: 16px auto 40px;
+    }
+
+    /* Brand filter pills */
+    .brand-filters {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 60px;
+    }
+
+    .btn-brand {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 12px 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold-dim);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .btn-brand:hover,
+    .btn-brand.active-brand {
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
+    }
+
+    .btn-brand:hover::before,
+    .btn-brand.active-brand::before {
+      opacity: 1;
+    }
+
+    /* ═══════════════════════════════════════
+       CAR CARDS
+    ═══════════════════════════════════════ */
+    #carCards {
+      padding-bottom: 80px;
+    }
+
+    .car-card {
+      background: var(--dark-2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      height: 100%;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .car-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(201, 168, 76, 0.35);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(201, 168, 76, 0.1);
+    }
+
+    .car-card-img-wrap {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .car-card-img-wrap img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      display: block;
+    }
+
+    .car-card:hover .car-card-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    /* Gold shimmer line on hover */
+    .car-card-img-wrap::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .car-card:hover .car-card-img-wrap::after {
+      opacity: 1;
+    }
+
+    .car-card-body {
+      padding: 20px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .car-card-brand {
+      font-size: 0.68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .car-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .car-card-year {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .car-card-price {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 18px;
+    }
+
+    .btn-view {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--transition);
+      margin-top: auto;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .btn-view:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════════
+       MODAL — GLASSMORPHISM
+    ═══════════════════════════════════════ */
+    #carModal .modal-content {
+      background: rgba(26, 26, 26, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      color: var(--text);
+    }
+
+    #carModal .modal-header {
+      border-bottom: 1px solid var(--glass-border);
+      padding: 20px 24px;
+    }
+
+    #carModal .modal-header h5 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    #carModal .btn-close {
+      filter: invert(1) opacity(0.5);
+    }
+
+    #carModal .modal-body {
+      padding: 28px 24px 32px;
+    }
+
+    #carModal img {
+      border-radius: 10px;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+
+    #carModal p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    #carModal .badge {
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      padding: 7px 14px;
+      border-radius: 4px;
+      font-weight: 500;
+      background: var(--dark-3) !important;
+      color: var(--text-muted);
+      border: 1px solid var(--glass-border);
+      margin: 3px;
+    }
+
+    #modalPrice {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-top: 16px;
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════
+       ABOUT SECTION
+    ═══════════════════════════════════════ */
+    .about-section {
+      background: var(--dark);
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 100px 0;
+    }
+
+    .about-section .about-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .about-section .about-text {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 640px;
+      line-height: 1.9;
+      margin-bottom: 56px;
+    }
+
+    /* Feature cards — glassmorphism */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Gold glow corner on hover */
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: -40px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(201, 168, 76, 0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(201, 168, 76, 0.3);
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+      transform: translateY(-4px);
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.8;
+    }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--glass-border);
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .footer-copy {
+      font-size: 0.78rem;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+    }
+
+    .footer-rule {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 16px auto;
+    }
+
+    /* ═══════════════════════════════════════
+       LOADING / EMPTY STATES
+    ═══════════════════════════════════════ */
+    .state-message {
+      width: 100%;
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+
+    .state-message .state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .state-message p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Spinner gold accent */
+    .spinner-border {
+      border-color: var(--gold-dim);
+      border-top-color: var(--gold);
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL REVEAL ANIMATION
+    ═══════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #carouselExample .carousel-item img {
+        height: 380px;
+      }
+
+      .hero-overlay {
+        bottom: 32px;
+      }
+
+      .hero-overlay h1 {
+        font-size: 2rem;
+      }
+
+      /* Mobile nav: full-width dark panel */
+      .navbar-collapse {
+        background: rgba(10, 10, 10, 0.97);
+        padding: 16px;
+        border-radius: 0 0 12px 12px;
+      }
+
+      /* Admin button full-width on mobile */
+      .btn-admin {
+        margin-left: 0;
+        margin-top: 12px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .about-section .about-text {
+        max-width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- Header -->
-  <div class="bg-dark text-light text-center py-2">
-    <h5>Welcome to Car World 🚗 | Luxury Brands</h5>
+  <!-- ── ANNOUNCEMENT BAR ──────────────────────────────── -->
+  <div class="announcement-bar">
+    Premium Showroom &nbsp;<span>|</span>&nbsp; BMW &bull; MG &bull; Jaguar &nbsp;<span>|</span>&nbsp; Est. 2020
   </div>
 
-  <!-- Navbar -->
-
-  <nav class="navbar navbar-expand-lg navbar-dark bg-black">
+  <!-- ── STICKY NAVBAR ─────────────────────────────────── -->
+  <nav class="navbar navbar-expand-lg navbar-custom" id="mainNav">
     <div class="container">
 
-      <a class="navbar-brand fw-bold">Car World</a>
+      <!-- Logo -->
+      <a class="navbar-brand-custom" href="#">
+        Car World<span class="brand-dot"></span>
+      </a>
 
-      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <!-- Mobile hamburger toggle -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav"
+        aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
+      <!-- Collapsible nav links -->
       <div class="collapse navbar-collapse" id="nav">
-
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav mx-auto">
 
           <li class="nav-item">
-            <a class="nav-link">Home</a>
+            <a class="nav-link active" href="#">Home</a>
           </li>
 
           <li class="nav-item">
             <a class="nav-link" href="#about">About</a>
           </li>
 
+          <!-- Brands dropdown with animation -->
           <li class="nav-item dropdown">
-
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Brands
             </a>
-
             <ul class="dropdown-menu">
-
-              <li><a class="dropdown-item" onclick="showBMW()">BMW</a></li>
-              <li><a class="dropdown-item" onclick="showMG()">MG</a></li>
-              <li><a class="dropdown-item" onclick="showJaguar()">Jaguar</a></li>
-
+              <li><a class="dropdown-item" href="#carCards" onclick="showBrand('bmw')">BMW</a></li>
+              <li><a class="dropdown-item" href="#carCards" onclick="showBrand('mg')">MG</a></li>
+              <li><a class="dropdown-item" href="#carCards" onclick="showBrand('jaguar')">Jaguar</a></li>
             </ul>
-
           </li>
 
         </ul>
 
+        <!-- Admin button — redirects to login.html -->
+        <!-- Backend decides: admin role → dashboard, user role → Car World site -->
+        <a href="login.html" class="btn-admin">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Admin
+        </a>
       </div>
+
     </div>
   </nav>
 
-  <!-- Carousel -->
+  <!-- ── HERO / CAROUSEL ───────────────────────────────── -->
+  <div class="hero-wrapper">
 
-  <div id="carouselExample" class="carousel slide">
+    <!-- Bootstrap carousel — auto-plays every 4.5s -->
+    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4500">
 
-    <div class="carousel-inner">
-
-      <div class="carousel-item active">
-        <img src="Images/Assets/front-car-lights-night-road (1).jpg" class="d-block w-100"
-          style="height:500px;object-fit:cover;">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="Images/Assets/front-car-lights-night-road (1).jpg" class="d-block w-100" alt="Luxury car at night">
+        </div>
+        <div class="carousel-item">
+          <img src="Images/Assets/mg.jpg" class="d-block w-100" alt="MG showroom">
+        </div>
+        <div class="carousel-item">
+          <img src="Images/Assets/f2.png" class="d-block w-100" alt="Supercar">
+        </div>
       </div>
 
-      <div class="carousel-item">
-        <img src="Images/Assets/mg.jpg" class="d-block w-100" style="height:500px;object-fit:cover;">
-      </div>
-
-      <div class="carousel-item">
-        <img src="Images/Assets/f2.png" class="d-block w-100" style="height:500px;object-fit:cover;">
-      </div>
+      <!-- Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
 
     </div>
 
-    <button class="carousel-control-prev" data-bs-target="#carouselExample" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-
-    <button class="carousel-control-next" data-bs-target="#carouselExample" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
-
-  </div>
-
-  <!-- Select Brands -->
-
-  <div class="text-center my-5">
-
-    <h2>TOP BRANDS</h2>
-
-    <button class="btn btn-dark m-2" onclick="showBMW()">BMW</button>
-    <button class="btn btn-success m-2" onclick="showMG()">MG</button>
-    <button class="btn btn-primary m-2" onclick="showJaguar()">Jaguar</button>
+    <!-- Hero headline overlay (z-index 3, above gradient overlay) -->
+    <div class="hero-overlay">
+      <p class="hero-tag">Luxury Automobile Showroom</p>
+      <h1>Drive the <em>Extraordinary</em></h1>
+      <p>Premium vehicles curated for those who demand the finest in performance and design.</p>
+      <a href="#carCards" class="hero-cta">
+        Explore Cars
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
 
   </div>
 
-  <!-- Cards -->
+  <!-- ── BRAND FILTER + SECTION HEADING ───────────────── -->
+  <section class="brands-section">
+    <p class="section-label">Our Collection</p>
+    <h2 class="section-title">Top Brands</h2>
+    <div class="section-rule"></div>
 
-  <div class="container">
-    <div class="row" id="carCards">
+    <!-- Filter pills — clicking calls showBrand() -->
+    <div class="brand-filters">
+      <button class="btn-brand active-brand" onclick="showBrand('all')">All</button>
+      <button class="btn-brand" onclick="showBrand('bmw')">BMW</button>
+      <button class="btn-brand" onclick="showBrand('mg')">MG</button>
+      <button class="btn-brand" onclick="showBrand('jaguar')">Jaguar</button>
+    </div>
+  </section>
 
-      <div class="text-center">
-        <h4>Select a brand to view cars 🚗</h4>
+  <!-- ── CAR CARDS GRID ────────────────────────────────── -->
+  <div class="container" id="carCards">
+    <div class="row g-4">
+      <!-- Populated by JS loadCars() -->
+      <div class="state-message">
+        <span class="state-icon">🚗</span>
+        <p>Select a brand to view cars</p>
       </div>
-
     </div>
   </div>
 
-  <!-- Modal -->
-
-  <div class="modal fade" id="carModal">
-
-    <div class="modal-dialog">
-
+  <!-- ── MODAL (glassmorphism) ─────────────────────────── -->
+  <div class="modal fade" id="carModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
 
         <div class="modal-header">
-
-          <h5 id="modalTitle"></h5>
-
-          <button class="btn-close" data-bs-dismiss="modal"></button>
-
+          <h5 id="modalTitle" class="modal-title"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div class="modal-body text-center">
-
-          <img id="modalImage" class="img-fluid mb-3">
-
+          <img id="modalImage" alt="Car image">
           <p id="modalInfo"></p>
-
-          <h4 id="modalPrice" class="text-success"></h4>
-
+          <span id="modalPrice"></span>
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- About Section -->
-
+  <!-- ── ABOUT SECTION ─────────────────────────────────── -->
   <section id="about" class="about-section">
-
     <div class="container">
 
+      <p class="section-label">Who We Are</p>
       <h2 class="about-title">About Car World</h2>
+      <div class="section-rule" style="margin-left:0;"></div>
 
       <p class="about-text">
-        Car World is a premium automobile showroom offering luxury vehicles from the world's top brands like BMW, MG and
-        Jaguar.
-        We provide a seamless experience for customers to explore high-performance cars with modern design and advanced
-        technology.
+        Car World is a premium automobile showroom offering luxury vehicles from the world's top brands —
+        BMW, MG, and Jaguar. We provide a seamless experience for customers to explore high-performance cars
+        with modern design and advanced technology.
       </p>
 
       <div class="features">
-
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <h3>🚗 Premium Cars</h3>
-          <p>Explore luxury and performance vehicles from world-class brands.</p>
+          <p>Explore luxury and performance vehicles from world-class brands, hand-picked for quality.</p>
         </div>
-
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <h3>⚡ Latest Technology</h3>
-          <p>Our cars include modern safety features and advanced driving tech.</p>
+          <p>Our cars include modern safety features, advanced driving assistance, and cutting-edge infotainment.</p>
         </div>
-
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <h3>💎 Luxury Experience</h3>
-          <p>Enjoy a premium showroom experience with expert guidance.</p>
+          <p>Enjoy a premium showroom experience with personalised expert guidance at every step.</p>
         </div>
-
       </div>
 
     </div>
-
   </section>
 
-  <!-- Footer -->
-
-  <footer class="bg-dark text-light text-center py-3">
-
-    © 2026 Car World
-
+  <!-- ── FOOTER ────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-brand">Car World</div>
+    <div class="footer-rule"></div>
+    <p class="footer-copy">© 2026 Car World &nbsp;&bull;&nbsp; All rights reserved</p>
   </footer>
 
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-
+    // ══════════════════════════════════════════════════════
+    //  CONFIG
+    // ══════════════════════════════════════════════════════
     const API = "http://localhost:5000/api/cars";
-    let allCars = [];   // store all fetched cars globally
+    let allCars = [];   // cache all cars from backend
 
-    // ---------- Build one card ----------
-    function card(car) {
+    // ══════════════════════════════════════════════════════
+    //  NAVBAR — add .scrolled shadow when page scrolls down
+    // ══════════════════════════════════════════════════════
+    const mainNav = document.getElementById("mainNav");
+    window.addEventListener("scroll", () => {
+      mainNav.classList.toggle("scrolled", window.scrollY > 40);
+    });
+
+    // ══════════════════════════════════════════════════════
+    //  BUILD ONE CARD HTML STRING
+    // ══════════════════════════════════════════════════════
+    function buildCard(car) {
       const price = car.price
         ? "₹" + Number(car.price).toLocaleString("en-IN")
         : "Price on request";
+
       return `
-      <div class="col-md-4 mb-4">
-        <div class="card shadow h-100">
-          <img src="${car.image}" class="card-img-top"
-               style="height:200px;object-fit:cover"
-               onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
-          <div class="card-body text-center d-flex flex-column">
-            <h5 class="card-title">${car.name}</h5>
-            <p class="text-muted small mb-1">${car.brand} &bull; ${car.modelYear || ""}</p>
-            <p class="text-success fw-bold">${price}</p>
-            <button class="btn btn-dark mt-auto"
-              onclick='showDetails(${JSON.stringify(car)})'>
-              View Details
-            </button>
+        <div class="col-md-4 col-sm-6">
+          <div class="car-card d-flex flex-column reveal">
+            <div class="car-card-img-wrap">
+              <img src="${car.image}" alt="${car.name}"
+                   onerror="this.src='https://via.placeholder.com/400x200?text=No+Image'">
+            </div>
+            <div class="car-card-body">
+              <div class="car-card-brand">${car.brand || ""}</div>
+              <div class="car-card-name">${car.name}</div>
+              <div class="car-card-year">${car.modelYear || ""}</div>
+              <div class="car-card-price">${price}</div>
+              <button class="btn-view" onclick='openModal(${JSON.stringify(car)})'>
+                View Details →
+              </button>
+            </div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
     }
 
-    // ---------- Render a list of cars ----------
+    // ══════════════════════════════════════════════════════
+    //  RENDER CARS INTO THE GRID ROW
+    // ══════════════════════════════════════════════════════
     function renderCards(cars) {
-      const container = document.getElementById("carCards");
+      const row = document.querySelector("#carCards .row");
+
       if (!cars.length) {
-        container.innerHTML = `<div class="text-center w-100"><p class="text-muted">No cars found for this brand.</p></div>`;
+        row.innerHTML = `<div class="state-message">
+          <span class="state-icon">🔍</span>
+          <p>No cars found for this brand.</p>
+        </div>`;
         return;
       }
-      container.innerHTML = cars.map(card).join("");
+
+      row.innerHTML = cars.map(buildCard).join("");
+      requestAnimationFrame(activateReveal); // staggered reveal
     }
 
-    // ---------- Fetch all cars from backend ----------
+    // ══════════════════════════════════════════════════════
+    //  FETCH ALL CARS ON PAGE LOAD
+    // ══════════════════════════════════════════════════════
     async function loadCars() {
-      const container = document.getElementById("carCards");
-      container.innerHTML = `<div class="text-center w-100 py-4">
-      <div class="spinner-border text-dark" role="status"></div>
-      <p class="mt-2">Loading cars...</p>
-    </div>`;
+      const row = document.querySelector("#carCards .row");
+      row.innerHTML = `<div class="state-message">
+        <div class="spinner-border mb-3" role="status"></div>
+        <p>Loading cars…</p>
+      </div>`;
 
       try {
         const res = await fetch(API);
         const data = await res.json();
         allCars = data;
-        renderCards(allCars);
+        renderCards(allCars);   // show all by default
       } catch (err) {
-        container.innerHTML = `<div class="text-center w-100 text-danger py-4">
-        ⚠️ Could not connect to backend. Make sure the server is running on port 5000.
-      </div>`;
+        row.innerHTML = `<div class="state-message">
+          <span class="state-icon">⚠️</span>
+          <p style="color:#e55;">Could not connect to backend.<br>Make sure the server is running on port 5000.</p>
+        </div>`;
         console.error("API error:", err);
       }
     }
 
-    // ---------- Brand filter buttons ----------
-    function showBMW() { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "bmw")); }
-    function showMG() { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "mg")); }
-    function showJaguar() { renderCards(allCars.filter(c => c.brand?.toLowerCase() === "jaguar")); }
+    // ══════════════════════════════════════════════════════
+    //  BRAND FILTER — unified for pills AND dropdown
+    // ══════════════════════════════════════════════════════
+    function showBrand(brand) {
+      // Update active pill
+      document.querySelectorAll(".btn-brand").forEach(btn => {
+        const label = btn.textContent.trim().toLowerCase();
+        btn.classList.toggle(
+          "active-brand",
+          brand === "all" ? label === "all" : label === brand
+        );
+      });
 
-    // ---------- Modal with real data ----------
-    function showDetails(car) {
+      const filtered = brand === "all"
+        ? allCars
+        : allCars.filter(c => c.brand?.toLowerCase() === brand);
+
+      renderCards(filtered);
+
+      // Smooth scroll to grid
+      document.getElementById("carCards")
+        .scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Legacy aliases — used by navbar dropdown onclick
+    function showBMW() { showBrand("bmw"); }
+    function showMG() { showBrand("mg"); }
+    function showJaguar() { showBrand("jaguar"); }
+
+    // ══════════════════════════════════════════════════════
+    //  MODAL — open with car data
+    // ══════════════════════════════════════════════════════
+    function openModal(car) {
       document.getElementById("modalTitle").innerText = car.name;
       document.getElementById("modalImage").src = car.image;
       document.getElementById("modalInfo").innerHTML =
-        `${car.description}<br><br>
-       <span class="badge bg-secondary me-1">⛽ ${car.fuelType || "N/A"}</span>
-       <span class="badge bg-secondary me-1">⚙️ ${car.transmission || "N/A"}</span>
-       <span class="badge bg-secondary">📅 ${car.modelYear || "N/A"}</span>`;
+        `${car.description || ""}<br><br>
+         <span class="badge">⛽ ${car.fuelType || "N/A"}</span>
+         <span class="badge">⚙️ ${car.transmission || "N/A"}</span>
+         <span class="badge">📅 ${car.modelYear || "N/A"}</span>`;
       document.getElementById("modalPrice").innerText =
         car.price ? "₹" + Number(car.price).toLocaleString("en-IN") : "Price on request";
 
       new bootstrap.Modal(document.getElementById("carModal")).show();
     }
 
-    // ---------- Load on page ready ----------
-    window.addEventListener("DOMContentLoaded", loadCars);
+    // ══════════════════════════════════════════════════════
+    //  SCROLL REVEAL — IntersectionObserver with stagger
+    // ══════════════════════════════════════════════════════
+    function activateReveal() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add("visible"), i * 80);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
 
+      document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    }
 
-
+    // ══════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════
+    window.addEventListener("DOMContentLoaded", () => {
+      loadCars();
+      activateReveal(); // for About feature cards
+    });
   </script>
 
-
-  <!-- In every .html file -->
+  <!-- Your existing auth + UI scripts -->
   <script src="/auth.js"></script>
   <script src="/ui.js"></script>
 
