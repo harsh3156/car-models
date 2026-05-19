@@ -1037,7 +1037,39 @@
     //  CONFIG
     // ══════════════════════════════════════════════════════
     const API = "http://localhost:5000/api/cars";
-    let allCars = [];   // cache all cars from backend
+    const cars = [
+      {
+        name: "BMW M8 Competition",
+        brand: "bmw",
+        modelYear: "2023",
+        price: "22000000",
+        image: "Images/Assets/f2.png",
+        fuelType: "Petrol",
+        transmission: "Automatic",
+        description: "BMW is known for luxury, performance and German engineering."
+      },
+      {
+        name: "MG Hector Plus",
+        brand: "mg",
+        modelYear: "2024",
+        price: "2200000",
+        image: "Images/Assets/mg.jpg",
+        fuelType: "Diesel",
+        transmission: "Automatic",
+        description: "MG cars provide advanced technology and modern design."
+      },
+      {
+        name: "Jaguar F-TYPE",
+        brand: "jaguar",
+        modelYear: "2023",
+        price: "15000000",
+        image: "Images/Assets/front-car-lights-night-road (1).jpg",
+        fuelType: "Petrol",
+        transmission: "Automatic",
+        description: "Jaguar offers premium luxury with powerful performance."
+      }
+    ];
+    let allCars = cars;   // cache all cars
 
     // ══════════════════════════════════════════════════════
     //  NAVBAR — add .scrolled shadow when page scrolls down
@@ -1078,10 +1110,10 @@
     // ══════════════════════════════════════════════════════
     //  RENDER CARS INTO THE GRID ROW
     // ══════════════════════════════════════════════════════
-    function renderCards(cars) {
+    function renderCards(carsList) {
       const row = document.querySelector("#carCards .row");
 
-      if (!cars.length) {
+      if (!carsList || !carsList.length) {
         row.innerHTML = `<div class="state-message">
           <span class="state-icon">🔍</span>
           <p>No cars found for this brand.</p>
@@ -1089,7 +1121,7 @@
         return;
       }
 
-      row.innerHTML = cars.map(buildCard).join("");
+      row.innerHTML = carsList.map(buildCard).join("");
       requestAnimationFrame(activateReveal); // staggered reveal
     }
 
@@ -1106,14 +1138,17 @@
       try {
         const res = await fetch(API);
         const data = await res.json();
-        allCars = data;
-        renderCards(allCars);   // show all by default
+        
+        if (data && data.length > 0) {
+          allCars = data;
+        } else {
+          allCars = cars; // fallback to const cars
+        }
+        renderCards(allCars);
       } catch (err) {
-        row.innerHTML = `<div class="state-message">
-          <span class="state-icon">⚠️</span>
-          <p style="color:#e55;">Could not connect to backend.<br>Make sure the server is running on port 5000.</p>
-        </div>`;
-        console.error("API error:", err);
+        console.warn("API error, falling back to constant cars:", err);
+        allCars = cars;
+        renderCards(allCars);
       }
     }
 
