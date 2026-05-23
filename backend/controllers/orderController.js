@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
     const totalPrice = car.price * quantity;
 
     const order = await Order.create({
-      user: req.user._id,
+      user: req.user.id,
       car: carId,
       quantity,
       totalPrice,
@@ -49,7 +49,7 @@ const createOrder = async (req, res) => {
 // ── @access  Private
 const getOrders = async (req, res) => {
   try {
-    const filter = req.user.role === "admin" ? {} : { user: req.user._id };
+    const filter = req.user.role === "admin" ? {} : { user: req.user.id };
 
     const orders = await Order.find(filter)
       .populate("car", "name brand price image")
@@ -76,7 +76,7 @@ const getOrderById = async (req, res) => {
     }
 
     // Only owner or admin can view
-    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+    if (order.user._id.toString() !== req.user.id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ success: false, message: "Not authorized to view this order" });
     }
 

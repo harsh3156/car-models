@@ -1,97 +1,95 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import API from '../api/axios';
-import styles from './CarForm.module.css';
+import AdminLayout from '../components/AdminLayout';
+import api from '../api/axios';
 
-export default function EditCar() {
+function EditCar() {
   const { id } = useParams();
-  const [form, setForm] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
+  const [car, setCar] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    API.get(`/cars/${id}`)
-      .then(({ data }) => setForm(data))
-      .catch(() => setError('Failed to load car data.'))
-      .finally(() => setFetching(false));
+    const fetchCar = async () => {
+      try {
+        const response = await api.get(`/cars/${id}`);
+        setCar(response.data.car);
+      } catch (err) {
+        setError(err.response?.data?.message || 'Unable to load car');
+      }
+    };
+
+    fetchCar();
   }, [id]);
 
-  const set = (k) => (e) => setForm(p => ({ ...p, [k]: e.target.value }));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); setError(''); setSuccess('');
     try {
-      await API.put(`/cars/${id}`, { ...form, price: Number(form.price), year: Number(form.year), seats: Number(form.seats) });
-      setSuccess('Car updated successfully!');
-      setTimeout(() => navigate('/cars'), 1200);
+      await api.put(`/cars/${id}`, car);
+      setSuccess('Car updated successfully.');
+      setTimeout(() => navigate('/cars'), 1000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update car.');
-    } finally { setLoading(false); }
+      setError(err.response?.data?.message || 'Failed to update car');
+    }
   };
 
-  if (fetching) return <div style={{color:'var(--text-muted)',padding:40}}>Loading car data...</div>;
-  if (!form) return <div style={{color:'var(--accent2)',padding:40}}>Car not found.</div>;
+  if (!car) {
+    return (
+      <AdminLayout>
+        <div className="page-card">
+          <h1 className="page-title">Edit Car</h1>
+          {error ? <div className="alert">{error}</div> : <p>Loading car details…</p>}
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className={styles.grid}>
-            <div className={styles.field}>
-              <label className={styles.label}>Car Name *</label>
-              <input className={styles.input} value={form.name || ''} onChange={set('name')} required />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Brand *</label>
-              <input className={styles.input} value={form.brand || ''} onChange={set('brand')} required />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Price (₹) *</label>
-              <input className={styles.input} type="number" value={form.price || ''} onChange={set('price')} required min="0" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Year *</label>
-              <input className={styles.input} type="number" value={form.year || ''} onChange={set('year')} required />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Fuel Type</label>
-              <select className={styles.select} value={form.fuelType || 'Petrol'} onChange={set('fuelType')}>
-                {['Petrol','Diesel','Electric','Hybrid','CNG'].map(f => <option key={f}>{f}</option>)}
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Transmission</label>
-              <select className={styles.select} value={form.transmission || 'Automatic'} onChange={set('transmission')}>
-                {['Automatic','Manual'].map(t => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Seats</label>
-              <input className={styles.input} type="number" value={form.seats || ''} onChange={set('seats')} min="1" max="10" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Image URL</label>
-              <input className={styles.input} value={form.image || ''} onChange={set('image')} />
-            </div>
-            <div className={`${styles.field} ${styles.fullWidth}`}>
-              <label className={styles.label}>Description</label>
-              <textarea className={styles.textarea} value={form.description || ''} onChange={set('description')} />
-            </div>
+    <AdminLayout>
+      <div className="page-card form-card">
+        <h1 className="page-title">Edit Car</h1>
+        {error && <div className="alert">{error}</div>}
+        {success && <div className="alert">{success}</div>}
+        <form onSubmit={handleSubmit} className="form-card">
+          <div className="form-field">
+            <label htmlFor="name">Model</label>
+            <input
+              id="name"
+              value={car.name || ''}
+              onChange={(e) => setCar({ ...car, name: e.target.value })}
+              required
+            />
           </div>
-          <div className={styles.footer}>
-            <button type="button" className={styles.cancelBtn} onClick={() => navigate('/cars')}>Cancel</button>
-            <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes →'}
-            </button>
+          <div className="form-field">
+            <label htmlFor="price">Price</label>
+            <input
+              id="price"
+              type="number"
+              value={car.price || ''}
+              onChange={(e) => setCar({ ...car, price: e.target.value })}
+              required
+            />
           </div>
+          <div className="form-field">
+            <label htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              rows="5"
+              value={car.description || ''}
+              onChange={(e) => setCar({ ...car, description: e.target.value })}
+            />
+          </div>
+          <button className="button" type="submit">
+            Update Car
+          </button>
         </form>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
+
+export default EditCar;

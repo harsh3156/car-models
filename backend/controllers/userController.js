@@ -69,7 +69,7 @@ const getUserById = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
 
-    const user = await User.findById(req.user._id)
+    const user = await User.findById(req.user.id)
       .select("-password");
 
     if (!user) {
@@ -104,7 +104,7 @@ const updateProfile = async (req, res) => {
 
     const { name, email } = req.body;
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({

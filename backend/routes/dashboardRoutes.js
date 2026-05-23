@@ -7,11 +7,10 @@ const {
   getTopCars,
   getRevenueChart,
 } = require("../controllers/dashboardController");
-const { protect } = require("../middleware/authMiddleware");
-const { adminOnly } = require("../middleware/adminMiddleware");
+const { protect, verifyAdmin } = require("../middleware/authMiddleware");
 
 // ── All dashboard routes: Private + Admin only ────────────────────────────────
-router.use(protect, adminOnly);
+router.use(protect, verifyAdmin);
 
 router.get("/stats", getDashboardStats);
 router.get("/recent-orders", getRecentOrders);

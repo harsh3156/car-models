@@ -1,21 +1,14 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-import styles from './Layout.module.css';
+import { Navigate, useLocation } from 'react-router-dom';
 
-export default function ProtectedRoute() {
+function ProtectedRoute({ children }) {
   const token = localStorage.getItem('adminToken');
-  if (!token) return <Navigate to="/login" replace />;
+  const location = useLocation();
 
-  return (
-    <div className={styles.layout}>
-      <Sidebar />
-      <div className={styles.main}>
-        <Navbar />
-        <main className={styles.content}>
-          <Outlet />
-        </main>
-      </div>
-    </div>
-  );
+  if (!token) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  return children;
 }
+
+export default ProtectedRoute;

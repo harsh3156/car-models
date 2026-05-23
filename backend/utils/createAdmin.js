@@ -15,10 +15,19 @@ const createAdmin = async () => {
             return;
         }
 
-        const existingAdmin = await User.findOne({ email: adminEmail });
+        const existingAdmin = await User.findOne({ email: adminEmail }).select("+password");
 
         if (existingAdmin) {
-            console.log("✅ Admin account is ready and verified.");
+            existingAdmin.role = "admin";
+            const passwordMatches = await existingAdmin.matchPassword(adminPassword);
+            if (!passwordMatches) {
+                existingAdmin.password = adminPassword;
+                await existingAdmin.save();
+                console.log("✅ Admin password was reset to match .env credentials.");
+            } else {
+                await existingAdmin.save();
+                console.log("✅ Admin account is ready and verified.");
+            }
             return;
         }
 

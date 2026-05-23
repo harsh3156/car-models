@@ -19,19 +19,29 @@ const createAdmin = require("./utils/createAdmin");
 const carRoutes = require("./routes/carRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 const errorMiddleware = require("./middleware/errorMiddleware");
 
 const app = express();
 
 // ── Middlewares ──────────────────────────────────────────────────────────────
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 // ── API Routes ──────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cars", carRoutes);
-
+app.use("/api/orders", orderRoutes);
+app.use("/api/dashboard", dashboardRoutes);app.use("/api/upload", uploadRoutes);
 // ── Home Route ──────────────────────────────────────────────────────────────
 app.get("/", (req, res) => {
   res.json({ message: "Car World backend running" });

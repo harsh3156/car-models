@@ -1,29 +1,38 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import AddCar from './pages/AddCar';
-import ViewCars from './pages/ViewCars';
-import EditCar from './pages/EditCar';
-import Orders from './pages/Orders';
 import Users from './pages/Users';
+import Orders from './pages/Orders';
+import ViewCars from './pages/ViewCars';
+import AddCar from './pages/AddCar';
+import EditCar from './pages/EditCar';
 import ProtectedRoute from './components/ProtectedRoute';
+import './index.css';
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
+    <div className="app-shell">
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<ProtectedRoute />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="cars" element={<ViewCars />} />
-          <Route path="cars/add" element={<AddCar />} />
-          <Route path="cars/edit/:id" element={<EditCar />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="users" element={<Users />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <Routes>
+                <Route path="" element={<Navigate to="dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="users" element={<Users />} />
+                <Route path="orders" element={<Orders />} />
+                <Route path="cars" element={<ViewCars />} />
+                <Route path="cars/add" element={<AddCar />} />
+                <Route path="cars/edit/:id" element={<EditCar />} />
+              </Routes>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 }
+
+export default App;

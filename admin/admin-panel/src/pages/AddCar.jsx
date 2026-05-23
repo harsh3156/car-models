@@ -1,87 +1,56 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../api/axios';
-import styles from './CarForm.module.css';
+import AdminLayout from '../components/AdminLayout';
+import api from '../api/axios';
 
-const INIT = { name:'', brand:'', price:'', year:'', fuelType:'Petrol', transmission:'Automatic', seats:'', description:'', image:'' };
-
-export default function AddCar() {
-  const [form, setForm] = useState(INIT);
-  const [loading, setLoading] = useState(false);
+function AddCar() {
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const set = (k) => (e) => setForm(p => ({ ...p, [k]: e.target.value }));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setSuccess('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); setError(''); setSuccess('');
     try {
-      await API.post('/cars', { ...form, price: Number(form.price), year: Number(form.year), seats: Number(form.seats) });
-      setSuccess('Car added successfully!');
-      setTimeout(() => navigate('/cars'), 1200);
+      await api.post('/cars', { name, price, description });
+      setSuccess('Car added successfully.');
+      setTimeout(() => navigate('/cars'), 1000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add car.');
-    } finally { setLoading(false); }
+      setError(err.response?.data?.message || 'Failed to add car');
+    }
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className={styles.grid}>
-            <div className={styles.field}>
-              <label className={styles.label}>Car Name *</label>
-              <input className={styles.input} value={form.name} onChange={set('name')} placeholder="e.g. Model S" required />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Brand *</label>
-              <input className={styles.input} value={form.brand} onChange={set('brand')} placeholder="e.g. Tesla" required />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Price (₹) *</label>
-              <input className={styles.input} type="number" value={form.price} onChange={set('price')} placeholder="e.g. 8500000" required min="0" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Year *</label>
-              <input className={styles.input} type="number" value={form.year} onChange={set('year')} placeholder="e.g. 2024" required min="2000" max="2030" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Fuel Type</label>
-              <select className={styles.select} value={form.fuelType} onChange={set('fuelType')}>
-                {['Petrol','Diesel','Electric','Hybrid','CNG'].map(f => <option key={f}>{f}</option>)}
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Transmission</label>
-              <select className={styles.select} value={form.transmission} onChange={set('transmission')}>
-                {['Automatic','Manual'].map(t => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Seats</label>
-              <input className={styles.input} type="number" value={form.seats} onChange={set('seats')} placeholder="e.g. 5" min="1" max="10" />
-            </div>
-            <div className={styles.field}>
-              <label className={styles.label}>Image URL</label>
-              <input className={styles.input} value={form.image} onChange={set('image')} placeholder="https://..." />
-            </div>
-            <div className={`${styles.field} ${styles.fullWidth}`}>
-              <label className={styles.label}>Description</label>
-              <textarea className={styles.textarea} value={form.description} onChange={set('description')} placeholder="Car description..." />
-            </div>
+    <AdminLayout>
+      <div className="page-card form-card">
+        <h1 className="page-title">Add Car</h1>
+        {error && <div className="alert">{error}</div>}
+        {success && <div className="alert">{success}</div>}
+        <form onSubmit={handleSubmit} className="form-card">
+          <div className="form-field">
+            <label htmlFor="name">Model</label>
+            <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
-          <div className={styles.footer}>
-            <button type="button" className={styles.cancelBtn} onClick={() => navigate('/cars')}>Cancel</button>
-            <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? 'Adding...' : 'Add Car →'}
-            </button>
+          <div className="form-field">
+            <label htmlFor="price">Price</label>
+            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
           </div>
+          <div className="form-field">
+            <label htmlFor="description">Description</label>
+            <textarea id="description" rows="5" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <button className="button" type="submit">
+            Save Car
+          </button>
         </form>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
+
+export default AddCar;
