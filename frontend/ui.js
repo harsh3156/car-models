@@ -4,7 +4,8 @@ function showDetails(title, img) {
   document.getElementById("modalImage").src = img;
 
   let info = "";
-  let price = "";
+  let price = ""; cs  
+
 
   if(title.includes("BMW")){
     info = "BMW is known for luxury, performance and German engineering.";
