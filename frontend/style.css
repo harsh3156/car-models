@@ -177,3 +177,142 @@ font-size:20px;
 font-size:15px;
 color:#d1d5db;
 }
+
+/* ===== FEATURED CARS SECTION ===== */
+.brands-section {
+  padding: 70px 20px 20px;
+  background: #0b111d;
+  color: #f8fafc;
+}
+
+.section-label {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c9a84c;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: clamp(2.4rem, 3.5vw, 4rem);
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.section-rule {
+  width: 60px;
+  height: 3px;
+  background: #c9a84c;
+  margin-bottom: 28px;
+}
+
+#carCards {
+  padding: 0 20px 60px;
+  background: linear-gradient(180deg, #0b111d 0%, #121a2b 100%);
+}
+
+.car-card {
+  background: #111827;
+  border-radius: 26px;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+  display: flex;
+  flex-direction: column;
+}
+
+.car-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.45);
+}
+
+.car-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+}
+
+.car-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.car-card:hover .car-card-img-wrap img {
+  transform: scale(1.05);
+}
+
+.car-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.car-card-brand {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #f3f4f6;
+  opacity: 0.72;
+}
+
+.car-card-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.car-card-year {
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.car-card-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.btn-view {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid #c9a84c;
+  color: #c9a84c;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  transition: transform 0.3s ease, background 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-view:hover {
+  background: #c9a84c;
+  color: #0b111d;
+  transform: translateY(-2px);
+}
+
+.state-message {
+  width: 100%;
+  text-align: center;
+  padding: 80px 24px;
+  color: #cbd5e1;
+}
+
+.state-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 991px) {
+  .brands-section {
+    padding: 40px 10px 10px;
+  }
+
+  .car-card {
+    margin: auto;
+  }
+}

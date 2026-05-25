@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login — Car World</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="admin-card login-card">
+      <p class="section-label">ADMIN PORTAL</p>
+      <h1 class="section-title">Car World Admin Login</h1>
+      <p class="admin-copy">Use your admin credentials to add and manage cars in the showroom.</p>
+
+      <form id="adminLoginForm" class="admin-form">
+        <label for="adminEmail">Email</label>
+        <input id="adminEmail" type="email" placeholder="admin@carworld.com" required>
+
+        <label for="adminPassword">Password</label>
+        <input id="adminPassword" type="password" placeholder="Enter password" required>
+
+        <button type="submit" class="btn-view">Sign In</button>
+      </form>
+
+      <p class="admin-note">Need an admin account? Use the seeded admin credentials from the backend .env file.</p>
+    </section>
+  </main>
+
+  <script src="../auth.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

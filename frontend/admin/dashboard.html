@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard — Car World</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-header">
+      <div>
+        <p class="section-label">ADMIN DASHBOARD</p>
+        <h1 class="section-title">Upload New Car</h1>
+      </div>
+      <div class="admin-actions">
+        <a href="../index.html" class="btn-admin">Home</a>
+        <button id="logoutBtn" class="btn-view">Logout</button>
+      </div>
+    </header>
+
+    <section class="admin-card admin-panel-card">
+      <form id="carForm" class="admin-form">
+        <div class="field-grid">
+          <div class="form-group">
+            <label for="carName">Car Name</label>
+            <input id="carName" type="text" placeholder="BMW M8 Competition" required>
+          </div>
+          <div class="form-group">
+            <label for="carBrand">Brand</label>
+            <select id="carBrand" required>
+              <option value="">Select a brand</option>
+              <option value="BMW">BMW</option>
+              <option value="MG">MG</option>
+              <option value="Jaguar">Jaguar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="carYear">Year</label>
+            <input id="carYear" type="number" placeholder="2024" min="1900" max="2099" required>
+          </div>
+          <div class="form-group">
+            <label for="carPrice">Price in ₹</label>
+            <input id="carPrice" type="number" placeholder="22000000" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="carImage">Car Image</label>
+          <input id="carImage" type="file" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+          <label for="carDescription">Description</label>
+          <textarea id="carDescription" rows="5" placeholder="Describe the car and its premium features." required></textarea>
+        </div>
+
+        <button type="submit" class="btn-view">Add Car</button>
+      </form>
+
+      <div id="toast" class="toast hidden"></div>
+    </section>
+
+    <section class="admin-card cars-list-card">
+      <p class="section-label">LIVE COLLECTION</p>
+      <h2 class="section-title">Current Inventory</h2>
+      <div id="adminCarGrid" class="admin-car-grid"></div>
+    </section>
+  </main>
+
+  <script src="../auth.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

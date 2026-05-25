@@ -78,7 +78,7 @@ async function loginAdmin(email, password) {
     });
     const data = await res.json();
     if (res.ok) {
-        saveAuth(data.token, data.admin);
+        saveAuth(data.token, data.user);
         window.location.href = "/admin/dashboard.html";
     } else {
         alert(data.message || "Admin login failed.");

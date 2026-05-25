@@ -27,9 +27,21 @@ const errorMiddleware = require("./middleware/errorMiddleware");
 const app = express();
 
 // ── Middlewares ──────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://localhost:5173",
+  "http://127.0.0.1:8080",
+  "http://localhost:8080",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy: origin not allowed"));
+      }
+    },
     credentials: true,
   })
 );

@@ -1,0 +1,209 @@
+body {
+  background: #06080f;
+}
+
+.admin-shell {
+  min-height: 100vh;
+  padding: 40px 24px;
+  background: radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 32%), #05080f;
+  color: #f8fafc;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-card {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 32px;
+  margin-bottom: 28px;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+}
+
+.login-card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.admin-panel-card {
+  max-width: 900px;
+  margin: 0 auto 30px;
+}
+
+.cars-list-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-form {
+  display: grid;
+  gap: 20px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: grid;
+  gap: 10px;
+}
+
+.form-group label {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: #0d1322;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  color: #f8fafc;
+  padding: 14px 16px;
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 4px rgba(201,168,76,0.12);
+}
+
+.btn-admin,
+.btn-view {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-admin {
+  border-color: #c9a84c;
+  color: #c9a84c;
+  background: transparent;
+}
+
+.btn-view {
+  background: #c9a84c;
+  color: #081011;
+  border-color: #c9a84c;
+}
+
+.btn-view:hover,
+.btn-admin:hover {
+  opacity: 0.95;
+}
+
+.section-title {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.admin-copy,
+.admin-note {
+  color: #cbd5e1;
+  max-width: 620px;
+}
+
+.admin-car-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-car-card {
+  background: #111827;
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-car-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+}
+
+.admin-car-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.admin-car-card-body {
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-car-card h3 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.admin-car-card span {
+  color: #cbd5e1;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  max-width: 320px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  z-index: 999;
+}
+
+.toast.success {
+  background: #1f3d1d;
+  border: 1px solid #8fd185;
+}
+
+.toast.error {
+  background: #2c1315;
+  border: 1px solid #fb7185;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .field-grid,
+  .admin-car-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    align-items: stretch;
+  }
+}
