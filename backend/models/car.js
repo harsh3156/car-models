@@ -16,15 +16,36 @@ const carSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: true,
+      default: "https://via.placeholder.com/600x320?text=Car+World",
     },
     description: {
       type: String,
       required: true,
     },
-    fuelType: String,
-    modelYear: Number,
-    transmission: String,
+    category: {
+      type: String,
+      default: "Luxury",
+    },
+    fuelType: {
+      type: String,
+      default: "Petrol",
+    },
+    modelYear: {
+      type: Number,
+      default: new Date().getFullYear(),
+    },
+    transmission: {
+      type: String,
+      default: "Automatic",
+    },
+    mileage: {
+      type: String,
+      default: "0 km",
+    },
+    stock: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }
 );

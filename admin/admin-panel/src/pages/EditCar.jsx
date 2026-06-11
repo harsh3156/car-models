@@ -14,7 +14,7 @@ function EditCar() {
     const fetchCar = async () => {
       try {
         const response = await api.get(`/cars/${id}`);
-        setCar(response.data.car);
+        setCar(response.data.data || response.data.car);
       } catch (err) {
         setError(err.response?.data?.message || 'Unable to load car');
       }
@@ -65,6 +65,15 @@ function EditCar() {
             />
           </div>
           <div className="form-field">
+            <label htmlFor="brand">Brand</label>
+            <input
+              id="brand"
+              value={car.brand || ''}
+              onChange={(e) => setCar({ ...car, brand: e.target.value })}
+              required
+            />
+          </div>
+          <div className="form-field">
             <label htmlFor="price">Price</label>
             <input
               id="price"
@@ -72,6 +81,65 @@ function EditCar() {
               value={car.price || ''}
               onChange={(e) => setCar({ ...car, price: e.target.value })}
               required
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="image">Image URL</label>
+            <input
+              id="image"
+              value={car.image || ''}
+              onChange={(e) => setCar({ ...car, image: e.target.value })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="fuelType">Fuel Type</label>
+            <select
+              id="fuelType"
+              value={car.fuelType || 'Petrol'}
+              onChange={(e) => setCar({ ...car, fuelType: e.target.value })}
+            >
+              <option value="Petrol">Petrol</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Electric">Electric</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+          <div className="form-field">
+            <label htmlFor="modelYear">Model Year</label>
+            <input
+              id="modelYear"
+              type="number"
+              value={car.modelYear || ''}
+              onChange={(e) => setCar({ ...car, modelYear: e.target.value })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="transmission">Transmission</label>
+            <select
+              id="transmission"
+              value={car.transmission || 'Automatic'}
+              onChange={(e) => setCar({ ...car, transmission: e.target.value })}
+            >
+              <option value="Automatic">Automatic</option>
+              <option value="Manual">Manual</option>
+            </select>
+          </div>
+          <div className="form-field">
+            <label htmlFor="mileage">Mileage</label>
+            <input
+              id="mileage"
+              value={car.mileage || ''}
+              onChange={(e) => setCar({ ...car, mileage: e.target.value })}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="stock">Stock</label>
+            <input
+              id="stock"
+              type="number"
+              min="0"
+              value={car.stock || ''}
+              onChange={(e) => setCar({ ...car, stock: e.target.value })}
             />
           </div>
           <div className="form-field">

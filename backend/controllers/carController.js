@@ -1,5 +1,31 @@
 const Car = require("../models/car");
 
+const normalizeCarData = (payload = {}) => {
+  const normalized = { ...payload };
+
+  if (!normalized.modelYear && payload.year) {
+    normalized.modelYear = payload.year;
+  }
+
+  if (!normalized.image && payload.imageUrl) {
+    normalized.image = payload.imageUrl;
+  }
+
+  if (!normalized.category && payload.category) {
+    normalized.category = payload.category;
+  }
+
+  if (normalized.stock === undefined && payload.stock !== undefined) {
+    normalized.stock = payload.stock;
+  }
+
+  if (normalized.mileage === undefined && payload.mileage !== undefined) {
+    normalized.mileage = payload.mileage;
+  }
+
+  return normalized;
+};
+
 // ── @desc    Get all cars
 // ── @route   GET /api/cars
 // ── @access  Public
@@ -60,7 +86,8 @@ const getCarById = async (req, res) => {
 // ── @access  Private / Admin
 const createCar = async (req, res) => {
   try {
-    const { name, brand, price, image, description, fuelType, modelYear, transmission, mileage, stock } = req.body;
+    const payload = normalizeCarData(req.body);
+    const { name, brand, price, image, description, fuelType, modelYear, transmission, mileage, stock, category } = payload;
 
     const car = await Car.create({
       name,
@@ -73,6 +100,7 @@ const createCar = async (req, res) => {
       transmission,
       mileage,
       stock,
+      category,
     });
 
     res.status(201).json({ success: true, data: car });
@@ -86,7 +114,8 @@ const createCar = async (req, res) => {
 // ── @access  Private / Admin
 const updateCar = async (req, res) => {
   try {
-    const car = await Car.findByIdAndUpdate(req.params.id, req.body, {
+    const payload = normalizeCarData(req.body);
+    const car = await Car.findByIdAndUpdate(req.params.id, payload, {
       new: true,
       runValidators: true,
     });

@@ -7,12 +7,11 @@ const User = require("../models/User");
  */
 const createAdmin = async () => {
     try {
-        const adminEmail = process.env.ADMIN_EMAIL;
-        const adminPassword = process.env.ADMIN_PASSWORD;
+        const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
+        const adminPassword = process.env.ADMIN_PASSWORD || "123456";
 
-        if (!adminEmail || !adminPassword) {
-            console.warn("⚠️ ADMIN_EMAIL or ADMIN_PASSWORD missing in .env - Skipping default admin creation");
-            return;
+        if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+            console.warn("⚠️ ADMIN_EMAIL or ADMIN_PASSWORD missing in .env - Using fallback admin credentials");
         }
 
         const existingAdmin = await User.findOne({ email: adminEmail }).select("+password");

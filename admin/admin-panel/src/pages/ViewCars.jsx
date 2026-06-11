@@ -12,7 +12,7 @@ function ViewCars() {
     const loadCars = async () => {
       try {
         const response = await api.get('/cars');
-        setCars(response.data.cars || []);
+        setCars(response.data.data || []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load cars');
       } finally {
@@ -22,6 +22,17 @@ function ViewCars() {
 
     loadCars();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this car?')) return;
+
+    try {
+      await api.delete(`/cars/${id}`);
+      setCars((currentCars) => currentCars.filter((car) => car._id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete car');
+    }
+  };
 
   return (
     <AdminLayout>
@@ -41,8 +52,10 @@ function ViewCars() {
             <thead>
               <tr>
                 <th>Model</th>
+                <th>Brand</th>
                 <th>Price</th>
                 <th>Mileage</th>
+                <th>Stock</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -50,12 +63,17 @@ function ViewCars() {
               {cars.map((car) => (
                 <tr key={car._id}>
                   <td>{car.name || car.model || '—'}</td>
-                  <td>{car.price ? `$${car.price}` : '—'}</td>
+                  <td>{car.brand || '—'}</td>
+                  <td>{car.price ? `₹${Number(car.price).toLocaleString('en-IN')}` : '—'}</td>
                   <td>{car.mileage || '—'}</td>
+                  <td>{car.stock ?? '—'}</td>
                   <td>
-                    <Link to={`/cars/edit/${car._id}`} className="button secondary">
+                    <Link to={`/cars/edit/${car._id}`} className="button secondary" style={{ marginRight: 8 }}>
                       Edit
                     </Link>
+                    <button className="button" onClick={() => handleDelete(car._id)}>
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
