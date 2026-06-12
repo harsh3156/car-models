@@ -1,6 +1,64 @@
 const Order = require("../models/Order");
 const Car = require("../models/car");
 
+// ── @desc    Create a public purchase order from the storefront form
+// ── @route   POST /api/orders/create
+// ── @access  Public
+const createPublicOrder = async (req, res) => {
+  try {
+    const {
+      carId,
+      carName,
+      carPrice,
+      fullName,
+      email,
+      phone,
+      address,
+      state,
+      pinCode,
+      paymentMethod,
+      emiTenure,
+      notes,
+    } = req.body;
+
+    if (!carId || !carName || !carPrice || !fullName || !email || !phone || !address || !state || !pinCode || !paymentMethod) {
+      return res.status(400).json({ success: false, message: "Please fill in all required fields" });
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ success: false, message: "Phone number must be 10 digits" });
+    }
+
+    if (!/^\d{6}$/.test(pinCode)) {
+      return res.status(400).json({ success: false, message: "PIN code must be 6 digits" });
+    }
+
+    if (paymentMethod === "EMI" && !emiTenure) {
+      return res.status(400).json({ success: false, message: "EMI tenure is required" });
+    }
+
+    const order = await Order.create({
+      carId,
+      carName,
+      carPrice: Number(carPrice),
+      buyerName: fullName,
+      email,
+      phone,
+      address,
+      state,
+      pinCode,
+      paymentMethod,
+      emiTenure: paymentMethod === "EMI" ? emiTenure : "",
+      notes: notes || "",
+      status: "pending",
+    });
+
+    res.status(201).json({ success: true, orderId: order._id });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 // ── @desc    Place a new order
 // ── @route   POST /api/orders
 // ── @access  Private
@@ -111,4 +169,4 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus };
+module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus, createPublicOrder };

@@ -6,33 +6,83 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "User is required"],
     },
     car: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Car",
-      required: [true, "Car is required"],
+    },
+    carId: {
+      type: String,
+      trim: true,
+    },
+    carName: {
+      type: String,
+      trim: true,
+    },
+    carPrice: {
+      type: Number,
+      min: [0, "Price cannot be negative"],
+    },
+    buyerName: {
+      type: String,
+      trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    state: {
+      type: String,
+      trim: true,
+    },
+    pinCode: {
+      type: String,
+      trim: true,
+    },
+    paymentMethod: {
+      type: String,
+      trim: true,
+    },
+    emiTenure: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    notes: {
+      type: String,
+      trim: true,
+      default: "",
     },
     quantity: {
       type: Number,
-      required: [true, "Quantity is required"],
       min: [1, "Quantity must be at least 1"],
       default: 1,
     },
     totalPrice: {
       type: Number,
-      required: [true, "Total price is required"],
       min: [0, "Total price cannot be negative"],
     },
     status: {
       type: String,
-      enum: ["Pending", "Confirmed", "Dispatched", "Shipped", "Delivered", "Cancelled"],
-      default: "Pending",
+      enum: ["pending", "confirmed", "cancelled"],
+      default: "pending",
     },
     trackingId: {
       type: String,
       unique: true,
       default: () => `TRK-${uuidv4().split("-")[0].toUpperCase()}`,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }
